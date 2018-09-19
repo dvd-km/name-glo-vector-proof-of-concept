@@ -46,14 +46,19 @@ inputLetters.forEach(function(key) {
 			      },
 			    },
 			    function(result) {
-			      // console.log(result.myPaths.childs)
+
 			      let properties = spp.svgPathProperties(result.myPaths.childs[0].attrs.d);
 			      var length = properties.getTotalLength();
-			      console.log('the letter '+key+' is length ::::');
-			      console.log(length+' px');
 			      // Convert px to inches, 1px = 0.013899 in
 			      let inchesLength = length * 0.013899;
+			      console.log('The Letter '+key);
+			      console.log('filename: '+key+'.svg')
+			      console.log('length: '+length+' px');
 			      console.log(inchesLength+ ' inches')
+			      console.log('width: '+result.myPaths.attrs.width+' px')
+			      console.log('('+result.myPaths.attrs.width*0.013899 + ' inches)')
+			      console.log('height: '+result.myPaths.attrs.height+' px')
+			      console.log('('+result.myPaths.attrs.height*0.013899 + ' inches)')
 			      console.log('and '+key+' appears '+counts[key]+' times in the string')
 			      totalLength += length * counts[key];
 			      // Convert px to inches, 1px = 0.013899 in
@@ -84,11 +89,16 @@ inputLetters.forEach(function(key) {
 		    function(result) {
 		      let properties = spp.svgPathProperties(result.myPaths.childs[0].attrs.d);
 		      var length = properties.getTotalLength();
-		      console.log('the letter '+key+' is length ::::')
-		      console.log(length)
 		      // Convert px to inches, 1px = 0.013899 in
 		      let inchesLength = length * 0.013899;
+		      console.log('The Letter '+key);
+		      console.log('filename: '+newKey+'.svg')
+		      console.log('length: '+length+' px');
 		      console.log(inchesLength+ ' inches')
+		      console.log('width: '+result.myPaths.attrs.width+' px')
+		      console.log('('+result.myPaths.attrs.width*0.013899 + ' inches)')
+		      console.log('height: '+result.myPaths.attrs.height+' px')
+		      console.log('('+result.myPaths.attrs.height*0.013899 + ' inches)')
 		      console.log('and '+key+' appears '+counts[key]+' times in the string')
 		      totalLength += length * counts[key];
 		      // Convert px to inches, 1px = 0.013899 in
