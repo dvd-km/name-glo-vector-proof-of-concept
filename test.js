@@ -49,12 +49,19 @@ inputLetters.forEach(function(key) {
 			      // console.log(result.myPaths.childs)
 			      let properties = spp.svgPathProperties(result.myPaths.childs[0].attrs.d);
 			      var length = properties.getTotalLength();
-			      // console.log('the letter '+key+' is length ::::')
-			      // console.log(length)
-			      // console.log('and '+key+' appears '+counts[key]+' times in the string')
+			      console.log('the letter '+key+' is length ::::');
+			      console.log(length+' px');
+			      // Convert px to inches, 1px = 0.013899 in
+			      let inchesLength = length * 0.013899;
+			      console.log(inchesLength+ ' inches')
+			      console.log('and '+key+' appears '+counts[key]+' times in the string')
 			      totalLength += length * counts[key];
-			      console.log('Total Length so far is: ')
-			      console.log(totalLength);
+			      // Convert px to inches, 1px = 0.013899 in
+			      let totalLengthInches = totalLength * 0.013899;
+			      console.log('Total Length so far is: ');
+			      console.log(totalLength+ ' px');
+			      console.log(totalLengthInches+' inches')
+
 			    }
 			  )
 			})
@@ -77,12 +84,18 @@ inputLetters.forEach(function(key) {
 		    function(result) {
 		      let properties = spp.svgPathProperties(result.myPaths.childs[0].attrs.d);
 		      var length = properties.getTotalLength();
-		      // console.log('the letter '+key+' is length ::::')
-		      // console.log(length)
-		      // console.log('and '+key+' appears '+counts[key]+' times in the string')
+		      console.log('the letter '+key+' is length ::::')
+		      console.log(length)
+		      // Convert px to inches, 1px = 0.013899 in
+		      let inchesLength = length * 0.013899;
+		      console.log(inchesLength+ ' inches')
+		      console.log('and '+key+' appears '+counts[key]+' times in the string')
 		      totalLength += length * counts[key];
+		      // Convert px to inches, 1px = 0.013899 in
+		      let totalLengthInches = totalLength * 0.013899;	
 		      console.log('Total Length so far is: ')
-		      console.log(totalLength);
+		      console.log(totalLength+' px');
+		      console.log(totalLengthInches+' inches')
 		    }
 		  )
 		})
