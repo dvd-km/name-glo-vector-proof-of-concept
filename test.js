@@ -6,7 +6,7 @@ const fs = require('fs')
 
 // Dumbed down version for only 1 File, a.svg
 
-fs.readFile('./svgs/Wylie/a.svg', 'utf-8', function(err, data) {
+fs.readFile('./svgs/Wylie/j.svg', 'utf-8', function(err, data) {
   svgson(
     data,
     {
@@ -18,21 +18,21 @@ fs.readFile('./svgs/Wylie/a.svg', 'utf-8', function(err, data) {
       },
     },
     function(result) {
-
+    	// console.log(result.myPaths.childs[1].childs[0].attrs.d)
       let properties = spp.svgPathProperties(result.myPaths.childs[0].attrs.d);
       var length = properties.getTotalLength();
       // Convert px to inches, 1px = 0.013899 in
-      let inchesLength = length * 0.013899;
+      let inchesLength = length * 0.01388894472361809045226;
 
-      console.log('The Letter a');
-      console.log('filename: a.svg')
-      console.log('length: '+length.toFixed(3)+' px ('+inchesLength.toFixed(3)+ ' inches)');
+      console.log('The Letter j');
+      console.log('filename: j.svg')
+      console.log('length: '+Number(Math.round(length+'e4')+'e-4')+' px ('+Number(Math.round(inchesLength+'e4')+'e-4')+ ' inches)');
       // console.log('('+inchesLength.toFixed(3)+ ' inches)')
 
-      console.log('width: '+parseInt(result.myPaths.attrs.width).toFixed(3)+' px ('+result.myPaths.attrs.width*0.013899.toFixed(3) + ' inches)')
+      console.log('width: '+Number(Math.round(parseFloat(result.myPaths.attrs.width)+'e4')+'e-4')+' px ('+Number(Math.round(result.myPaths.attrs.width*0.01388894472361809045226+'e4')+'e-4') + ' inches)')
       // console.log('('+result.myPaths.attrs.width*0.013899.toFixed(3) + ' inches)')
 
-      console.log('height: '+parseInt(result.myPaths.attrs.height).toFixed(3)+' px ('+result.myPaths.attrs.height*0.013899.toFixed(3) + ' inches)')
+      console.log('height: '+Number(Math.round(parseFloat(result.myPaths.attrs.height)+'e4')+'e-4')+' px ('+Number(Math.round(result.myPaths.attrs.height*0.01388894472361809045226+'e4')+'e-4') + ' inches)')
       // console.log('('+result.myPaths.attrs.height*0.013899.toFixed(3) + ' inches)')
     }
   )
