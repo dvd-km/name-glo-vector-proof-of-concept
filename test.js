@@ -19,8 +19,6 @@ const typeface = 'Wylie'
 // const numbers = '0123456789';
 // const symbols = '!?#$%&:()+=-~"/@.,'+"'";
 
-var fontMap = {};
-
 const fontPath = './svgs/'+typeface+'/';
 
 const readFile = (name, callback) => {
@@ -39,7 +37,7 @@ const readFile = (name, callback) => {
 				break;
 			case '.':
 				fileName = '_p';
-				break;	
+				break;
 		}
 
 		fs.readFile(fontPath + fileName +'.svg', 'utf-8', function(err, data) {
@@ -51,7 +49,7 @@ const readFile = (name, callback) => {
 		  	}
 			});
 
-	} else{ 
+	} else{
 
 	  if( name === name.toLowerCase()){
 
@@ -96,7 +94,7 @@ const parseSvg = (file, callback) => {
 const createCharObject = (svg, callback) => {
 
 	var properties;
-	
+
 	if('childs' in svg.myPaths.childs[0] && svg.myPaths.childs[0].childs.length > 0 ){
 		// console.log('childs is TWO levels deep')
 		properties = spp.svgPathProperties(svg.myPaths.childs[0].childs[0].attrs.d);
@@ -118,16 +116,18 @@ const createCharObject = (svg, callback) => {
 	callback(charObj);
 }
 
-const calculateDimensions = (string) => {
+const calculateCharacterDimensions = (string, fontMap) => {
 
 	const letterSpacing = 0;
 	// const letterSpacing = ( string.length-1 ) * 1.5 // multiply by letter spacing value (in inches) ... add to total width
 	const xMargin = 0;
 	const yMargin = 0;
 
-	const totalLength = Number(Math.round(string.split('').reduce( (acc, char) => { return acc + fontMap[char].length},0)* 0.01388894472361809045226+'e4')+'e-4');
-	const totalWidth = Number(Math.round(string.split('').reduce( (acc, char) => { return acc + fontMap[char].width},0)* 0.01388894472361809045226+letterSpacing+'e4')+'e-4');
-	const totalHeight = Number(Math.round( Math.max(...string.split('').map(char => fontMap[char].height), 0) * 0.01388894472361809045226+'e4')+'e-4');
+  // How to handle unsupported characters.
+
+	const totalLength = Number(Math.round(string.split('').reduce( (acc, char) => { return acc + fontMap.find( i=> i.char === char ).length},0)* 0.01388894472361809045226+'e4')+'e-4');
+	const totalWidth = Number(Math.round(string.split('').reduce( (acc, char) => { return acc + fontMap.find( i=> i.char === char ).width},0)* 0.01388894472361809045226+letterSpacing+'e4')+'e-4');
+	const totalHeight = Number(Math.round( Math.max(...string.split('').map(char => fontMap.find( i=> i.char === char ).height), 0) * 0.01388894472361809045226+'e4')+'e-4');
 	// console.log(totalLength);
 	console.log('String : ', string);
 	console.log('Total Length : ',totalLength + " inches");
@@ -145,80 +145,80 @@ const calculateDimensions = (string) => {
 }
 
 
+const generateCharacterMap = (typeface) => {
 
-const promiseArray = allChar.split('').map ( (char)=> {
-	return new Promise((resolve,reject) =>{
-		
-		var firstPromise = new Promise( (resolve,reject) => {
-			readFile(char, (file)=> {
-				resolve(file);
-			})
-		})
+  // Catch Here, is any svg file missing for a character
 
-		firstPromise.then( (file) => {
-			return new Promise((resolve,reject) => {
-				parseSvg(file, (parsedSvg)=>{
-					resolve(parsedSvg);
-				})
-			})
-		}).then((svg)=>{
-			return new Promise((resolve,reject) => {
-				createCharObject(svg, (charObj) =>{
-					resolve(charObj);
-				})
-			})
-		}).then((charObj) => {
-			// console.log('inside last then, charObj : ', charObj)
-			fontMap[charObj.char] = charObj;
-			resolve(charObj)
-		}).catch( (error) => {
-		    console.log('error ', error)
-		});
-	});
+  const promiseArray = allChar.split('').map ( (char)=> {
+  	return new Promise((resolve,reject) =>{
 
-});
+  		var firstPromise = new Promise( (resolve,reject) => {
+  			readFile(char, (file)=> {
+  				resolve(file);
+  			})
+  		})
 
-Promise.all(promiseArray).then((results) => {
-	const str = 'abcAg';
+  		firstPromise.then( (file) => {
+  			return new Promise((resolve,reject) => {
+  				parseSvg(file, (parsedSvg)=>{
+  					resolve(parsedSvg);
+  				})
+  			})
+  		}).then((svg)=>{
+  			return new Promise((resolve,reject) => {
+  				createCharObject(svg, (charObj) =>{
+  					resolve(charObj);
+  				})
+  			})
+  		}).then((charObj) => {
+  			// console.log('inside last then, charObj : ', charObj)
+  			fontMap[charObj.char] = charObj;
+  			resolve(charObj)
+  		}).catch( (error) => {
+  		    console.log('error ', error)
+  		});
+  	});
 
+  });
 
-	if (str === str.replace(/(\r\n|\n|\r)/gm,"")){
-		// no line breaks
-		calculateDimensions(str);
-	} else {
-		
-		const splitString = str.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/);
-		
-		var lineDimensions = [];
-		
-		for (i=0;i<splitString.length;i++){
-			lineDimensions.push(calculateDimensions(splitString[i]));
-		}
-
-		const totalLength = lineDimensions.reduce( (acc, line) => { return acc + line.length},0);
-		const totalWidth = Math.max.apply(Math, lineDimensions.map(function(o) { return o.width; }));
-		const totalHeight = lineDimensions.reduce( (acc, line) => { return acc + line.height},0);
-
-		console.log('Total Length : ',totalLength);
-		console.log('Total Width : ',totalWidth);
-		console.log('Total Height : ',totalHeight);
-	}
-	
-})
+  Promise.all(promiseArray).then((results) => {
+    fs.writeFile(`${typeface}.json`, JSON.stringify(results));
+  })
+};
 
 
+// //generateCharacterMap(typeface);
 
+const wylieMap = require('./wylie.json');
 
+const calculateStringDimensions = (str, fontMap) => {
 
+  if ( str === str.replace(/(\r\n|\n|\r)/gm,"") ){
+   // no line breaks
+   return calculateCharacterDimensions(str, fontMap);
+  } else {
 
+   const splitString = str.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/);
 
+   var lineDimensions = [];
 
+   for (i=0;i<splitString.length;i++){
+     lineDimensions.push( calculateCharacterDimensions(splitString[i], fontMap) );
+   }
 
+   const totalLength = lineDimensions.reduce( (acc, line) => { return acc + line.length},0);
+   const totalWidth = Math.max.apply(Math, lineDimensions.map(function(o) { return o.width; }));
+   const totalHeight = lineDimensions.reduce( (acc, line) => { return acc + line.height},0);
+   return {totalLength, totalWidth, totalHeight};
+  }
 
+}
 
+  const input = 'abcAg';
 
+  const dimensions = calculateStringDimensions(input, wylieMap);
 
-
+  console.log(dimensions);
 
 
 
