@@ -1,18 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Generator: Adobe Illustrator 17.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="199px" height="237px" viewBox="0 0 199 237" enable-background="new 0 0 199 237" xml:space="preserve">
-<g>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="216.022px" height="240.024px" viewBox="0 0 216.022 240.024" style="enable-background:new 0 0 216.022 240.024;"
+	 xml:space="preserve">
+<g id="font" style="display:none;">
+</g>
+<g id="vectorized-fonts">
 	<g>
-		
-			<path fill="none" stroke="#0000FF" stroke-width="28.8" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
-			M156.635,51.568c-6.663-15.018-19.564-20.324-29.088-21.183c-36.106-3.257-64.278,21.02-81.961,50.196
-			c-18.719,30.887-38.9,79.914-29.169,116.522c7.074,26.613,34.276,19.891,51.43,7.098c23.796-17.747,39.073-42.438,54.655-67.33
-			c16.274-25.997,30.374-53.429,34.132-84.305"/>
-		
-			<path fill="none" stroke="#0000FF" stroke-width="28.8" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="
-			M184.856,17.272c-27.727,65.863-59.409,130.161-69.768,202.603"/>
+		<g>
+			<path style="fill:none;stroke:#0000FF;stroke-width:28.8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="
+				M159.8,52.794c-6.663-15.018-19.564-20.324-29.088-21.183c-36.106-3.257-64.278,21.02-81.961,50.196
+				c-18.719,30.887-38.9,79.914-29.169,116.522c7.074,26.613,34.276,19.891,51.43,7.098c23.796-17.747,39.073-42.438,54.655-67.33
+				c16.274-25.997,30.374-53.429,34.132-84.305"/>
+			<path style="fill:none;stroke:#0000FF;stroke-width:28.8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="
+				M188.021,18.498c-27.727,65.863-59.409,130.161-69.768,202.603"/>
+		</g>
 	</g>
+</g>
+<g id="KEY" style="display:none;">
 </g>
 </svg>

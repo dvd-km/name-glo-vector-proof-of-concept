@@ -4,149 +4,221 @@ const svgson = require('svgson')
 const fs = require('fs')
 
 
-// Dumbed down version for only 1 File, a.svg
+// Run Typeface through Calculator, populate array of objects
 
-fs.readFile('./svgs/Wylie/j.svg', 'utf-8', function(err, data) {
+const allChar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?#$%&:()+=-~"/@.,' + "'"
+const typeface = 'Wylie'
+
+// When Converting Symbols .ai file to .svg, use the following naming conventions for select special characters:
+// ':' = '_sc.svg'
+// '/' = '_fs.svg'
+// '.' = '_p.svg'
+
+// const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+// const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+// const numbers = '0123456789';
+// const symbols = '!?#$%&:()+=-~"/@.,'+"'";
+
+var fontMap = {};
+
+const fontPath = './svgs/'+typeface+'/';
+
+const readFile = (name, callback) => {
+
+  // Check for special characters ( badChar )
+	const badChar = [':' , '/' , '.'];
+
+	if( badChar.includes(name)){
+		var fileName;
+		switch (name) {
+			case ':':
+				fileName = '_sc';
+				break;
+			case '/':
+				fileName = '_fs';
+				break;
+			case '.':
+				fileName = '_p';
+				break;	
+		}
+
+		fs.readFile(fontPath + fileName +'.svg', 'utf-8', function(err, data) {
+		  	if(err){
+		  		console.log(err);
+		  	} else {
+			  	const svgLetter = [ name, data];
+			  	callback(svgLetter);
+		  	}
+			});
+
+	} else{ 
+
+	  if( name === name.toLowerCase()){
+
+	  	fs.readFile(fontPath + name +'.svg', 'utf-8', function(err, data) {
+		  	if(err){
+		  		console.log(err);
+		  	} else {
+			  	const svgLetter = [ name, data];
+			  	callback(svgLetter);
+		  	}
+			});
+	  } else {
+	  	fs.readFile(fontPath + name + name +'.svg', 'utf-8', function(err, data) {
+		  	if (err) {
+		  		console.log(err);
+		  	} else {
+			  	const svgLetter = [ name, data]
+			  	callback(svgLetter)
+		  	}
+			});
+	  }
+	}
+}
+
+const parseSvg = (file, callback) => {
   svgson(
-    data,
+    file[1],
     {
       svgo: true,
       title: 'myFile',
       pathsKey: 'myPaths',
       customAttrs: {
-        foo: true,
+        letter: file[0],
       },
     },
     function(result) {
-    	// console.log(result.myPaths.childs[1].childs[0].attrs.d)
-      let properties = spp.svgPathProperties(result.myPaths.childs[0].attrs.d);
-      var length = properties.getTotalLength();
-      // Convert px to inches, 1px = 0.013899 in
-      let inchesLength = length * 0.01388894472361809045226;
-
-      console.log('The Letter j');
-      console.log('filename: j.svg')
-      console.log('length: '+Number(Math.round(length+'e4')+'e-4')+' px ('+Number(Math.round(inchesLength+'e4')+'e-4')+ ' inches)');
-      // console.log('('+inchesLength.toFixed(3)+ ' inches)')
-
-      console.log('width: '+Number(Math.round(parseFloat(result.myPaths.attrs.width)+'e4')+'e-4')+' px ('+Number(Math.round(result.myPaths.attrs.width*0.01388894472361809045226+'e4')+'e-4') + ' inches)')
-      // console.log('('+result.myPaths.attrs.width*0.013899.toFixed(3) + ' inches)')
-
-      console.log('height: '+Number(Math.round(parseFloat(result.myPaths.attrs.height)+'e4')+'e-4')+' px ('+Number(Math.round(result.myPaths.attrs.height*0.01388894472361809045226+'e4')+'e-4') + ' inches)')
-      // console.log('('+result.myPaths.attrs.height*0.013899.toFixed(3) + ' inches)')
+    	callback(result)
     }
   )
+}
+
+const createCharObject = (svg, callback) => {
+
+	var properties;
+	
+	if('childs' in svg.myPaths.childs[0] && svg.myPaths.childs[0].childs.length > 0 ){
+		// console.log('childs is TWO levels deep')
+		properties = spp.svgPathProperties(svg.myPaths.childs[0].childs[0].attrs.d);
+	} else {
+		// console.log('childs is ONE level deep')
+		properties = spp.svgPathProperties(svg.myPaths.childs[0].attrs.d);
+	}
+
+	let letter = svg.letter
+	var length = properties.getTotalLength();
+
+	const charObj = {
+		char : letter,
+		length : length,
+		width : parseFloat(svg.myPaths.attrs.width),
+		height : parseFloat(svg.myPaths.attrs.height)
+	}
+
+	callback(charObj);
+}
+
+const calculateDimensions = (string) => {
+
+	const letterSpacing = 0;
+	// const letterSpacing = ( string.length-1 ) * 1.5 // multiply by letter spacing value (in inches) ... add to total width
+	const xMargin = 0;
+	const yMargin = 0;
+
+	const totalLength = Number(Math.round(string.split('').reduce( (acc, char) => { return acc + fontMap[char].length},0)* 0.01388894472361809045226+'e4')+'e-4');
+	const totalWidth = Number(Math.round(string.split('').reduce( (acc, char) => { return acc + fontMap[char].width},0)* 0.01388894472361809045226+letterSpacing+'e4')+'e-4');
+	const totalHeight = Number(Math.round( Math.max(...string.split('').map(char => fontMap[char].height), 0) * 0.01388894472361809045226+'e4')+'e-4');
+	// console.log(totalLength);
+	console.log('String : ', string);
+	console.log('Total Length : ',totalLength + " inches");
+	console.log('Total Width : ',totalWidth + " inches");
+	console.log('Total Height : ',totalHeight + " inches");
+
+	const dimensions = {
+		string : string,
+		length : totalLength,
+		width : totalWidth,
+		height : totalHeight
+	}
+
+	return dimensions;
+}
+
+
+
+const promiseArray = allChar.split('').map ( (char)=> {
+	return new Promise((resolve,reject) =>{
+		
+		var firstPromise = new Promise( (resolve,reject) => {
+			readFile(char, (file)=> {
+				resolve(file);
+			})
+		})
+
+		firstPromise.then( (file) => {
+			return new Promise((resolve,reject) => {
+				parseSvg(file, (parsedSvg)=>{
+					resolve(parsedSvg);
+				})
+			})
+		}).then((svg)=>{
+			return new Promise((resolve,reject) => {
+				createCharObject(svg, (charObj) =>{
+					resolve(charObj);
+				})
+			})
+		}).then((charObj) => {
+			// console.log('inside last then, charObj : ', charObj)
+			fontMap[charObj.char] = charObj;
+			resolve(charObj)
+		}).catch( (error) => {
+		    console.log('error ', error)
+		});
+	});
+
 });
 
-
-// // Sample input : [ Input String , Typeface ]
-
-// var inputArray = ['2JajAJaaj2J', 'Wylie']
-// var str = inputArray[0];
-
-// // Create Character Count(var counts) Object with keys(letters) and values(count)
-
-// var counts = {};
-
-// var ch, index, len, count;
-
-// for (index = 0, len = str.length; index < len; ++index) {
-//     ch = str.charAt(index);
-//     count = counts[ch];
-//     counts[ch] = count ? count + 1 : 1;
-// }
-
-// // Pull svg's from file system and get lengths of each character, multiply by frequency and add to total.
-// // Note : To differentiate from lower case and uppercase file names should be formatted as following
-// // lowercase a : a.svg
-// // uppercase A : aa.svg
-
-// const fontPath = './svgs/'+inputArray[1]+'/';
-
-// const inputLetters = Object.keys(counts);
-
-// var totalLength = 0;
+Promise.all(promiseArray).then((results) => {
+	const str = 'abcAg';
 
 
+	if (str === str.replace(/(\r\n|\n|\r)/gm,"")){
+		// no line breaks
+		calculateDimensions(str);
+	} else {
+		
+		const splitString = str.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/);
+		
+		var lineDimensions = [];
+		
+		for (i=0;i<splitString.length;i++){
+			lineDimensions.push(calculateDimensions(splitString[i]));
+		}
 
-// inputLetters.forEach(function(key) {
-// 	if( key === key.toLowerCase()){
-// 		// lowercase letter
-// 			fs.readFile(fontPath + key + '.svg', 'utf-8', function(err, data) {
-// 			  svgson(
-// 			    data,
-// 			    {
-// 			      svgo: true,
-// 			      title: 'myFile',
-// 			      pathsKey: 'myPaths',
-// 			      customAttrs: {
-// 			        foo: true,
-// 			      },
-// 			    },
-// 			    function(result) {
+		const totalLength = lineDimensions.reduce( (acc, line) => { return acc + line.length},0);
+		const totalWidth = Math.max.apply(Math, lineDimensions.map(function(o) { return o.width; }));
+		const totalHeight = lineDimensions.reduce( (acc, line) => { return acc + line.height},0);
 
-// 			      let properties = spp.svgPathProperties(result.myPaths.childs[0].attrs.d);
-// 			      var length = properties.getTotalLength();
-// 			      // Convert px to inches, 1px = 0.013899 in
-// 			      let inchesLength = length * 0.013899;
-// 			      console.log('The Letter '+key);
-// 			      console.log('filename: '+key+'.svg')
-// 			      console.log('length: '+length+' px');
-// 			      console.log(inchesLength+ ' inches')
-// 			      console.log('width: '+result.myPaths.attrs.width+' px')
-// 			      console.log('('+result.myPaths.attrs.width*0.013899 + ' inches)')
-// 			      console.log('height: '+result.myPaths.attrs.height+' px')
-// 			      console.log('('+result.myPaths.attrs.height*0.013899 + ' inches)')
-// 			      console.log('and '+key+' appears '+counts[key]+' times in the string')
-// 			      totalLength += length * counts[key];
-// 			      // Convert px to inches, 1px = 0.013899 in
-// 			      let totalLengthInches = totalLength * 0.013899;
-// 			      console.log('Total Length so far is: ');
-// 			      console.log(totalLength+ ' px');
-// 			      console.log(totalLengthInches+' inches')
+		console.log('Total Length : ',totalLength);
+		console.log('Total Width : ',totalWidth);
+		console.log('Total Height : ',totalHeight);
+	}
+	
+})
 
-// 			    }
-// 			  )
-// 			})
 
-// 	} else {
-// 		// Uppercase letter
-// 		var newKey = key+key;
 
-// 		fs.readFile(fontPath + newKey + '.svg', 'utf-8', function(err, data) {
-// 		  svgson(
-// 		    data,
-// 		    {
-// 		      svgo: true,
-// 		      title: 'myFile',
-// 		      pathsKey: 'myPaths',
-// 		      customAttrs: {
-// 		        foo: true,
-// 		      },
-// 		    },
-// 		    function(result) {
-// 		      let properties = spp.svgPathProperties(result.myPaths.childs[0].attrs.d);
-// 		      var length = properties.getTotalLength();
-// 		      // Convert px to inches, 1px = 0.013899 in
-// 		      let inchesLength = length * 0.013899;
-// 		      console.log('The Letter '+key);
-// 		      console.log('filename: '+newKey+'.svg')
-// 		      console.log('length: '+length+' px');
-// 		      console.log(inchesLength+ ' inches')
-// 		      console.log('width: '+result.myPaths.attrs.width+' px')
-// 		      console.log('('+result.myPaths.attrs.width*0.013899 + ' inches)')
-// 		      console.log('height: '+result.myPaths.attrs.height+' px')
-// 		      console.log('('+result.myPaths.attrs.height*0.013899 + ' inches)')
-// 		      console.log('and '+key+' appears '+counts[key]+' times in the string')
-// 		      totalLength += length * counts[key];
-// 		      // Convert px to inches, 1px = 0.013899 in
-// 		      let totalLengthInches = totalLength * 0.013899;	
-// 		      console.log('Total Length so far is: ')
-// 		      console.log(totalLength+' px');
-// 		      console.log(totalLengthInches+' inches')
-// 		    }
-// 		  )
-// 		})
-// 	}
 
-// });
+
+
+
+
+
+
+
+
+
+
+
+
+
